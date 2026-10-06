@@ -38,6 +38,7 @@ pnpm build
 ## Componentes principales
 
 - AppHeader
+- AppFooter
 - TaskForm
 - TaskFilters
 - TaskSummary
