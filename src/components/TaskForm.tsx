@@ -29,10 +29,6 @@ export function TaskForm() {
             Agregar tarea
           </button>
         </div>
-
-        <p className="helper-text">
-          El formulario se activará en una actividad posterior.
-        </p>
       </form>
     </section>
   );
