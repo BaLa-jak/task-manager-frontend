@@ -5,22 +5,27 @@ para administrar tareas.
 
 ## Alcance actual
 
-La aplicación permite visualizar una colección local de tareas
-mediante componentes React.
+La aplicación administra una colección local de tareas mediante
+estado de React. Actualmente permite:
 
-Actualmente incluye:
+- Registrar tareas.
+- Consultar la colección.
+- Completar y reabrir tareas.
+- Editar títulos.
+- Cancelar una edición.
+- Eliminar con confirmación.
+- Eliminar todas las tareas completadas.
+- Calcular el resumen automáticamente.
+- Mostrar una colección vacía.
 
-- Modelo de tarea con TypeScript.
-- Cinco tareas locales.
-- Renderizado mediante map.
-- Uso de claves estables.
-- Estados pendiente y completada.
-- Resumen calculado.
-- Mensaje para una colección vacía.
-- Diseño adaptable.
+Los cambios permanecen en memoria y se reinician al recargar.
 
-Los formularios, eventos y operaciones CRUD se implementarán
-en actividades posteriores.
+## Operaciones CRUD
+
+- Create: registro mediante el formulario.
+- Read: renderizado de la colección.
+- Update: cambio de estado y edición.
+- Delete: eliminación confirmada.
 
 ## Tecnologías
 
@@ -65,6 +70,7 @@ pnpm build
 - TaskForm
 - TaskFilters
 - TaskSummary
+- TaskActions
 - TaskList
 - TaskItem
 - TaskStatusBadge
