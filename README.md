@@ -5,8 +5,8 @@ para administrar tareas.
 
 ## Alcance actual
 
-La aplicación administra una colección local de tareas mediante
-estado de React. Actualmente permite:
+La aplicación administra una colección de tareas mediante
+estado de React y la conserva en el navegador. Actualmente permite:
 
 - Registrar tareas.
 - Consultar la colección.
@@ -17,8 +17,16 @@ estado de React. Actualmente permite:
 - Eliminar todas las tareas completadas.
 - Calcular el resumen automáticamente.
 - Mostrar una colección vacía.
+- Validar el título al registrar y editar.
+- Buscar por título.
+- Filtrar por estado.
+- Ordenar resultados.
+- Paginar los resultados visibles (5 por página).
+- Persistir las tareas mediante localStorage.
 
-Los cambios permanecen en memoria y se reinician al recargar.
+Las tareas se guardan como JSON en la clave `task-manager.tasks`.
+Los criterios de búsqueda, filtro, orden y página no se guardan.
+La conexión con la API REST se realizará en el EC3.
 
 ## Operaciones CRUD
 
@@ -34,6 +42,7 @@ Los cambios permanecen en memoria y se reinician al recargar.
 - Vite
 - PNPM
 - CSS
+- Web Storage (localStorage)
 - Git y GitHub
 
 ## Instalación
@@ -60,6 +69,8 @@ pnpm build
 - components: componentes visuales.
 - data: colección local de tareas.
 - models: tipos e interfaces.
+- services: consulta y persistencia local de tareas.
+- utils: reglas de validación.
 - styles: estilos globales.
 - docs: preguntas y documentación.
 
@@ -72,6 +83,7 @@ pnpm build
 - TaskSummary
 - TaskActions
 - TaskList
+- TaskPagination
 - TaskItem
 - TaskStatusBadge
 
