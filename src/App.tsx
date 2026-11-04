@@ -1,15 +1,13 @@
 import { useEffect, useState } from "react";
-import { AppFooter } from "./components/AppFooter";
-import { AppHeader } from "./components/AppHeader";
-import { TaskActions } from "./components/TaskActions";
-import { TaskFilters } from "./components/TaskFilters";
-import { TaskForm } from "./components/TaskForm";
-import { TaskList } from "./components/TaskList";
-import { TaskPagination } from "./components/TaskPagination";
-import { TaskSummary } from "./components/TaskSummary";
+import { Route, Routes } from "react-router";
 import { tasks as initialTasks } from "./data/tasks";
+import { AppLayout } from "./layouts/AppLayout";
 import type { Task } from "./models/task.interface";
 import type { TaskFilter, TaskSort } from "./models/task-view.types";
+import { HomePage } from "./pages/HomePage";
+import { NotFoundPage } from "./pages/NotFoundPage";
+import { TaskDetailPage } from "./pages/TaskDetailPage";
+import { TasksPage } from "./pages/TasksPage";
 import { getVisibleTasks } from "./services/task-query.service";
 import { loadTasks, saveTasks } from "./services/task-storage.service";
 
@@ -86,11 +84,12 @@ export default function App() {
     );
   }
 
-  function handleDeleteTask(id: string) {
+  // Devuelve true solo si se eliminó, para que el detalle sepa si debe navegar.
+  function handleDeleteTask(id: string): boolean {
     const selectedTask = tasks.find((task) => task.id === id);
 
     if (!selectedTask) {
-      return;
+      return false;
     }
 
     const shouldDelete = window.confirm(
@@ -98,12 +97,14 @@ export default function App() {
     );
 
     if (!shouldDelete) {
-      return;
+      return false;
     }
 
     setTasks((currentTasks) =>
       currentTasks.filter((task) => task.id !== id),
     );
+
+    return true;
   }
 
   function handleClearCompleted() {
@@ -138,49 +139,44 @@ export default function App() {
   }
 
   return (
-    <div className="app-shell">
-      <AppHeader />
-
-      <main className="app-main">
-        <TaskForm onAddTask={handleAddTask} />
-
-        <TaskFilters
-          query={query}
-          filter={filter}
-          sortBy={sortBy}
-          resultCount={visibleTasks.length}
-          onQueryChange={handleQueryChange}
-          onFilterChange={handleFilterChange}
-          onSortChange={setSortBy}
-          onClear={handleClearCriteria}
+    <Routes>
+      <Route element={<AppLayout />}>
+        <Route index element={<HomePage tasks={tasks} />} />
+        <Route
+          path="tasks"
+          element={
+            <TasksPage
+              tasks={tasks}
+              visibleCount={visibleTasks.length}
+              paginatedTasks={paginatedTasks}
+              page={page}
+              totalPages={totalPages}
+              completedCount={completedCount}
+              query={query}
+              filter={filter}
+              sortBy={sortBy}
+              emptyMessage={emptyMessage}
+              onAddTask={handleAddTask}
+              onQueryChange={handleQueryChange}
+              onFilterChange={handleFilterChange}
+              onSortChange={setSortBy}
+              onClearCriteria={handleClearCriteria}
+              onPageChange={setCurrentPage}
+              onClearCompleted={handleClearCompleted}
+              onToggleStatus={handleToggleStatus}
+              onEditTask={handleEditTask}
+              onDeleteTask={handleDeleteTask}
+            />
+          }
         />
-
-        <TaskSummary tasks={tasks} />
-
-        <TaskActions
-          completedCount={completedCount}
-          onClearCompleted={handleClearCompleted}
+        <Route
+          path="tasks/:taskId"
+          element={
+            <TaskDetailPage tasks={tasks} onDeleteTask={handleDeleteTask} />
+          }
         />
-
-        <TaskList
-          tasks={paginatedTasks}
-          emptyMessage={emptyMessage}
-          onToggleStatus={handleToggleStatus}
-          onEditTask={handleEditTask}
-          onDeleteTask={handleDeleteTask}
-        />
-
-        {totalPages > 1 && (
-          <TaskPagination
-            currentPage={page}
-            totalPages={totalPages}
-            onPrevious={() => setCurrentPage(page - 1)}
-            onNext={() => setCurrentPage(page + 1)}
-          />
-        )}
-      </main>
-
-      <AppFooter courseName="Diseño Frontend con Frameworks" />
-    </div>
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
+    </Routes>
   );
 }

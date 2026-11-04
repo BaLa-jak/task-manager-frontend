@@ -1,13 +1,17 @@
 # Administrador de tareas - Frontend
 
-Aplicación desarrollada con React, TypeScript, Vite y PNPM
-para administrar tareas.
+Aplicación de página única (SPA) desarrollada con React, TypeScript,
+Vite, React Router y PNPM para administrar tareas.
 
 ## Alcance actual
 
 La aplicación administra una colección de tareas mediante
 estado de React y la conserva en el navegador. Actualmente permite:
 
+- Navegar entre secciones sin recargar la página.
+- Consultar una página de inicio con el resumen.
+- Consultar el detalle de una tarea mediante una ruta dinámica.
+- Mostrar una página 404 para rutas o tareas inexistentes.
 - Registrar tareas.
 - Consultar la colección.
 - Completar y reabrir tareas.
@@ -26,7 +30,21 @@ estado de React y la conserva en el navegador. Actualmente permite:
 
 Las tareas se guardan como JSON en la clave `task-manager.tasks`.
 Los criterios de búsqueda, filtro, orden y página no se guardan.
-La conexión con la API REST se realizará en el EC3.
+La conexión con la API REST se realizará en la Actividad 10.
+
+## Rutas
+
+| Ruta | Página | Responsabilidad |
+| --- | --- | --- |
+| `/` | HomePage | Presentar la aplicación y su resumen |
+| `/tasks` | TasksPage | Administrar la colección completa |
+| `/tasks/:taskId` | TaskDetailPage | Mostrar una tarea por su ID |
+| `*` | NotFoundPage | Responder ante una ruta inexistente |
+
+React Router 7.18.4 se usa en modo declarativo: `BrowserRouter`
+envuelve la aplicación en `main.tsx`, `App.tsx` declara las rutas
+dentro de `AppLayout` y cada página se representa mediante `Outlet`.
+Al eliminar una tarea desde su detalle se regresa a `/tasks`.
 
 ## Operaciones CRUD
 
@@ -38,6 +56,7 @@ La conexión con la API REST se realizará en el EC3.
 ## Tecnologías
 
 - React
+- React Router 7.18.4
 - TypeScript
 - Vite
 - PNPM
@@ -67,16 +86,19 @@ pnpm build
 ## Estructura principal
 
 - components: componentes visuales.
+- layouts: estructura compartida (encabezado, navegación, pie).
+- pages: páginas asociadas a cada ruta.
 - data: colección local de tareas.
 - models: tipos e interfaces.
 - services: consulta y persistencia local de tareas.
-- utils: reglas de validación.
+- utils: reglas de validación y formato de fechas.
 - styles: estilos globales.
 - docs: preguntas y documentación.
 
 ## Componentes principales
 
 - AppHeader
+- AppNavigation
 - AppFooter
 - TaskForm
 - TaskFilters
