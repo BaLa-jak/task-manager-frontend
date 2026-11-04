@@ -6,10 +6,11 @@ import {
 } from '../utils/task-validation';
 
 interface TaskFormProps {
-  onAddTask: (title: string) => void;
+  isSubmitting: boolean;
+  onAddTask: (title: string) => Promise<boolean>;
 }
 
-export function TaskForm({ onAddTask }: TaskFormProps) {
+export function TaskForm({ isSubmitting, onAddTask }: TaskFormProps) {
   const [title, setTitle] = useState('');
   const [error, setError] = useState('');
 
@@ -21,7 +22,7 @@ export function TaskForm({ onAddTask }: TaskFormProps) {
     }
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const validationMessage = validateTaskTitle(title);
@@ -31,9 +32,13 @@ export function TaskForm({ onAddTask }: TaskFormProps) {
       return;
     }
 
-    onAddTask(title.trim());
-    setTitle('');
-    setError('');
+    // Solo se limpia cuando la API confirmó la creación.
+    const wasCreated = await onAddTask(title.trim());
+
+    if (wasCreated) {
+      setTitle('');
+      setError('');
+    }
   }
 
   return (
@@ -65,6 +70,7 @@ export function TaskForm({ onAddTask }: TaskFormProps) {
             placeholder="Ejemplo: revisar documentación"
             maxLength={TASK_TITLE_MAX_LENGTH}
             value={title}
+            disabled={isSubmitting}
             onChange={(event) =>
               handleTitleChange(event.target.value)
             }
@@ -76,7 +82,9 @@ export function TaskForm({ onAddTask }: TaskFormProps) {
             }
           />
 
-          <button type="submit">Agregar tarea</button>
+          <button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Guardando...' : 'Agregar tarea'}
+          </button>
         </div>
 
         <p id="task-title-help" className="helper-text">

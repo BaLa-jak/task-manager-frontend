@@ -9,3 +9,12 @@ export interface Task {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface CreateTaskInput {
+  title: string;
+}
+
+export interface UpdateTaskInput {
+  title?: string;
+  status?: TaskStatus;
+}

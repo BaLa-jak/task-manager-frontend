@@ -5,39 +5,27 @@ Vite, React Router y PNPM para administrar tareas.
 
 ## Alcance actual
 
-La aplicación administra una colección de tareas mediante
-estado de React y la conserva en el navegador. Actualmente permite:
+La aplicación consume la API REST de Express y MongoDB Atlas
+(`task-api-express`); las tareas ya no se guardan en el navegador.
+Actualmente permite:
 
 - Navegar entre secciones sin recargar la página.
-- Consultar una página de inicio con el resumen.
-- Consultar el detalle de una tarea mediante una ruta dinámica.
+- Consultar el detalle de una tarea por su identificador (GET por id).
 - Mostrar una página 404 para rutas o tareas inexistentes.
-- Registrar tareas.
-- Consultar la colección.
-- Completar y reabrir tareas.
-- Editar títulos.
-- Cancelar una edición.
-- Eliminar con confirmación.
-- Eliminar todas las tareas completadas.
-- Calcular el resumen automáticamente.
-- Mostrar una colección vacía.
+- Registrar, editar, completar, reabrir y eliminar tareas (con confirmación).
 - Validar el título al registrar y editar.
-- Buscar por título.
-- Filtrar por estado.
-- Ordenar resultados.
-- Paginar los resultados visibles (5 por página).
-- Persistir las tareas mediante localStorage.
+- Buscar por título, filtrar por estado y ordenar en el servidor.
+- Paginar los resultados con los metadatos de la API (5 por página).
+- Mostrar estados de carga, vacío, error y reintento.
 
-Las tareas se guardan como JSON en la clave `task-manager.tasks`.
 La búsqueda se conserva en la URL (`/tasks?q=texto`); filtro, orden
 y página no se guardan.
-La conexión con la API REST se realizará en la Actividad 10.
 
 ## Rutas
 
 | Ruta | Página | Responsabilidad |
 | --- | --- | --- |
-| `/` | HomePage | Presentar la aplicación y su resumen |
+| `/` | HomePage | Presentar la aplicación |
 | `/tasks` | TasksPage | Administrar la colección completa |
 | `/tasks/:taskId` | TaskDetailPage | Mostrar una tarea por su ID |
 | `*` | NotFoundPage | Responder ante una ruta inexistente |
@@ -62,7 +50,7 @@ Al eliminar una tarea desde su detalle se regresa a `/tasks`.
 - Vite
 - PNPM
 - CSS
-- Web Storage (localStorage)
+- Fetch API
 - Git y GitHub
 
 ## Instalación
@@ -89,9 +77,10 @@ pnpm build
 - components: componentes visuales.
 - layouts: estructura compartida (encabezado, navegación, pie).
 - pages: páginas asociadas a cada ruta.
-- data: colección local de tareas.
+- config: lectura y validación de `VITE_API_URL`.
+- hooks: consulta remota de la lista (`useTaskList`).
 - models: tipos e interfaces.
-- services: consulta y persistencia local de tareas.
+- services: cliente HTTP (`http.service.ts`) y servicio de tareas (`task.api.service.ts`).
 - utils: reglas de validación y formato de fechas.
 - styles: estilos globales.
 - docs: preguntas y documentación.
@@ -104,7 +93,7 @@ pnpm build
 - TaskForm
 - TaskFilters
 - TaskSummary
-- TaskActions
+- AsyncStatus
 - TaskList
 - TaskPagination
 - TaskItem
@@ -113,3 +102,39 @@ pnpm build
 ## Modelo Task
 
 Cada tarea contiene id, title, status, createdAt y updatedAt.
+
+## Integración con la API REST
+
+La aplicación consume la API de tareas mediante Fetch API.
+
+### Requisitos
+
+- Backend disponible en http://localhost:3000
+- Frontend ejecutado mediante Vite
+- MongoDB Atlas conectado desde el Backend
+
+### Configuración local
+
+1. Copiar `.env.example` como `.env.local`.
+2. Confirmar `VITE_API_URL=/api`.
+3. Iniciar el Backend con `pnpm dev`.
+4. Iniciar el Frontend con `pnpm dev`.
+
+Durante `pnpm dev`, el proxy de `vite.config.ts` reenvía `/api` a
+`http://localhost:3000`. `VITE_API_URL` es pública: nunca debe contener
+credenciales de MongoDB.
+
+### Funciones remotas
+
+- Listado paginado.
+- Búsqueda, filtro y ordenamiento.
+- Creación, edición y cambio de estado.
+- Eliminación con confirmación.
+- Consulta de detalle por identificador.
+- Estados de carga, vacío, error y reintento.
+
+### Compilación
+
+```bash
+pnpm build
+```

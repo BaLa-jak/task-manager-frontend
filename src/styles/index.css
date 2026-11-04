@@ -507,6 +507,28 @@ input[aria-invalid='true'] {
   margin-top: 1rem;
 }
 
+.request-status,
+.operation-message {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  background: #f8fafc;
+}
+
+.request-status--error,
+.operation-message--error {
+  border-color: #b91c1c;
+}
+
+.request-status h3 {
+  margin-top: 0;
+}
+
+[aria-busy='true'] {
+  opacity: 0.7;
+}
+
 @media (max-width: 720px) {
   .app-header { padding-block: 2.25rem; }
 

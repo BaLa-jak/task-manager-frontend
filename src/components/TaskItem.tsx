@@ -11,9 +11,9 @@ import { TaskStatusBadge } from './TaskStatusBadge';
 
 interface TaskItemProps {
   task: Task;
-  onToggleStatus: (id: string) => void;
-  onEditTask: (id: string, title: string) => void;
-  onDeleteTask: (id: string) => boolean;
+  onToggleStatus: (task: Task) => Promise<boolean>;
+  onEditTask: (task: Task, title: string) => Promise<boolean>;
+  onDeleteTask: (task: Task) => Promise<boolean>;
 }
 
 export function TaskItem({
@@ -26,6 +26,15 @@ export function TaskItem({
   const [isEditing, setIsEditing] = useState(false);
   const [draftTitle, setDraftTitle] = useState(title);
   const [error, setError] = useState('');
+  const [isBusy, setIsBusy] = useState(false);
+
+  // Bloquea los controles mientras la API responde.
+  async function runBusy(action: () => Promise<boolean>) {
+    setIsBusy(true);
+    const succeeded = await action();
+    setIsBusy(false);
+    return succeeded;
+  }
 
   function handleStartEdit() {
     setDraftTitle(title);
@@ -47,7 +56,7 @@ export function TaskItem({
     }
   }
 
-  function handleEditSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleEditSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const validationMessage = validateTaskTitle(draftTitle);
@@ -57,15 +66,21 @@ export function TaskItem({
       return;
     }
 
-    onEditTask(id, draftTitle.trim());
-    setError('');
-    setIsEditing(false);
+    const wasUpdated = await runBusy(() =>
+      onEditTask(task, draftTitle.trim()),
+    );
+
+    if (wasUpdated) {
+      setError('');
+      setIsEditing(false);
+    }
   }
 
   return (
     <article
       className={`task-item task-item--${status}`}
       role="listitem"
+      aria-busy={isBusy}
     >
       <div className="task-item__content">
         {isEditing ? (
@@ -83,6 +98,7 @@ export function TaskItem({
               className="task-item__edit-input"
               value={draftTitle}
               maxLength={TASK_TITLE_MAX_LENGTH}
+              disabled={isBusy}
               onChange={(event) =>
                 handleDraftChange(event.target.value)
               }
@@ -104,8 +120,14 @@ export function TaskItem({
             )}
 
             <div className="task-item__edit-actions">
-              <button type="submit">Guardar</button>
-              <button type="button" onClick={handleCancelEdit}>
+              <button type="submit" disabled={isBusy}>
+                Guardar
+              </button>
+              <button
+                type="button"
+                onClick={handleCancelEdit}
+                disabled={isBusy}
+              >
                 Cancelar
               </button>
             </div>
@@ -141,23 +163,23 @@ export function TaskItem({
         )}
         <button
           type="button"
-          onClick={() => onToggleStatus(id)}
-          disabled={isEditing}
+          onClick={() => void runBusy(() => onToggleStatus(task))}
+          disabled={isBusy || isEditing}
         >
           {status === 'completed' ? 'Reabrir' : 'Completar'}
         </button>
         <button
           type="button"
           onClick={handleStartEdit}
-          disabled={isEditing}
+          disabled={isBusy || isEditing}
         >
           Editar
         </button>
         <button
           type="button"
           className="button-danger"
-          onClick={() => onDeleteTask(id)}
-          disabled={isEditing}
+          onClick={() => void runBusy(() => onDeleteTask(task))}
+          disabled={isBusy || isEditing}
         >
           Eliminar
         </button>
