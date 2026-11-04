@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Route, Routes } from "react-router";
+import { Route, Routes, useSearchParams } from "react-router";
 import { tasks as initialTasks } from "./data/tasks";
 import { AppLayout } from "./layouts/AppLayout";
 import type { Task } from "./models/task.interface";
@@ -15,7 +15,8 @@ const PAGE_SIZE = 5;
 
 export default function App() {
   const [tasks, setTasks] = useState<Task[]>(() => loadTasks(initialTasks));
-  const [query, setQuery] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const query = searchParams.get("q") ?? "";
   const [filter, setFilter] = useState<TaskFilter>("all");
   const [sortBy, setSortBy] = useState<TaskSort>("updated-desc");
   const [currentPage, setCurrentPage] = useState(1);
@@ -118,6 +119,21 @@ export default function App() {
 
     setTasks((currentTasks) =>
       currentTasks.filter((task) => task.status !== "completed"),
+    );
+  }
+
+  // La búsqueda vive en la URL (?q=); replace evita una entrada de historial por tecla.
+  function setQuery(value: string) {
+    setSearchParams(
+      (params) => {
+        if (value === "") {
+          params.delete("q");
+        } else {
+          params.set("q", value);
+        }
+        return params;
+      },
+      { replace: true },
     );
   }
 

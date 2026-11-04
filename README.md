@@ -29,7 +29,8 @@ estado de React y la conserva en el navegador. Actualmente permite:
 - Persistir las tareas mediante localStorage.
 
 Las tareas se guardan como JSON en la clave `task-manager.tasks`.
-Los criterios de búsqueda, filtro, orden y página no se guardan.
+La búsqueda se conserva en la URL (`/tasks?q=texto`); filtro, orden
+y página no se guardan.
 La conexión con la API REST se realizará en la Actividad 10.
 
 ## Rutas
