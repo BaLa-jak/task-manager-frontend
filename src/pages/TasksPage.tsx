@@ -6,6 +6,7 @@ import { TaskForm } from '../components/TaskForm';
 import { TaskList } from '../components/TaskList';
 import { TaskPagination } from '../components/TaskPagination';
 import { TaskSummary } from '../components/TaskSummary';
+import { useAuth } from '../hooks/useAuth';
 import { useTaskList } from '../hooks/useTaskList';
 import type {
   SortOrder,
@@ -40,6 +41,7 @@ function mapSort(sort: TaskSort): {
 }
 
 export function TasksPage() {
+  const { accessToken } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get('q') ?? '';
   const [filter, setFilter] = useState<TaskFilter>('all');
@@ -61,7 +63,17 @@ export function TasksPage() {
   };
 
   const { tasks, meta, status, errorMessage, reload } =
-    useTaskList(taskListQuery);
+    useTaskList(taskListQuery, accessToken);
+
+  function requireToken(): string | null {
+    if (accessToken) {
+      return accessToken;
+    }
+
+    setOperationFailed(true);
+    setOperationMessage('La sesión no está disponible.');
+    return null;
+  }
 
   async function runMutation(
     operation: () => Promise<unknown>,
@@ -94,8 +106,14 @@ export function TasksPage() {
   }
 
   async function handleAddTask(title: string): Promise<boolean> {
+    const token = requireToken();
+
+    if (!token) {
+      return false;
+    }
+
     const succeeded = await runMutation(
-      () => createTaskRequest({ title }),
+      () => createTaskRequest({ title }, token),
       'La tarea fue creada.',
     );
 
@@ -107,11 +125,17 @@ export function TasksPage() {
   }
 
   async function handleToggleStatus(task: Task): Promise<boolean> {
+    const token = requireToken();
+
+    if (!token) {
+      return false;
+    }
+
     const nextStatus =
       task.status === 'pending' ? 'completed' : 'pending';
 
     const succeeded = await runMutation(
-      () => updateTaskRequest(task.id, { status: nextStatus }),
+      () => updateTaskRequest(task.id, { status: nextStatus }, token),
       'El estado fue actualizado.',
     );
 
@@ -126,8 +150,14 @@ export function TasksPage() {
     task: Task,
     title: string,
   ): Promise<boolean> {
+    const token = requireToken();
+
+    if (!token) {
+      return false;
+    }
+
     const succeeded = await runMutation(
-      () => updateTaskRequest(task.id, { title }),
+      () => updateTaskRequest(task.id, { title }, token),
       'El título fue actualizado.',
     );
 
@@ -139,6 +169,12 @@ export function TasksPage() {
   }
 
   async function handleDeleteTask(task: Task): Promise<boolean> {
+    const token = requireToken();
+
+    if (!token) {
+      return false;
+    }
+
     const shouldDelete = window.confirm(
       `¿Eliminar la tarea "${task.title}"?`,
     );
@@ -148,7 +184,7 @@ export function TasksPage() {
     }
 
     const succeeded = await runMutation(
-      () => deleteTaskRequest(task.id),
+      () => deleteTaskRequest(task.id, token),
       'La tarea fue eliminada.',
     );
 

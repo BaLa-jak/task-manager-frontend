@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { TaskStatusBadge } from '../components/TaskStatusBadge';
+import { useAuth } from '../hooks/useAuth';
 import type { Task } from '../models/task.interface';
 import {
   getHttpErrorMessage,
@@ -16,6 +17,7 @@ type DetailStatus = 'loading' | 'success' | 'not-found' | 'error';
 export function TaskDetailPage() {
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
+  const { accessToken } = useAuth();
   const [task, setTask] = useState<Task | null>(null);
   const [status, setStatus] = useState<DetailStatus>('loading');
   const [errorMessage, setErrorMessage] = useState('');
@@ -23,12 +25,14 @@ export function TaskDetailPage() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    // La ruta tasks/:taskId siempre entrega el parámetro.
-    if (!taskId) {
+    // La ruta tasks/:taskId siempre entrega el parámetro y ProtectedRoute
+    // garantiza la sesión.
+    if (!taskId || !accessToken) {
       return;
     }
 
     const id = taskId;
+    const token = accessToken;
     const controller = new AbortController();
 
     async function loadTask(): Promise<void> {
@@ -36,7 +40,11 @@ export function TaskDetailPage() {
       setErrorMessage('');
 
       try {
-        const response = await getTaskById(id, controller.signal);
+        const response = await getTaskById(
+          id,
+          token,
+          controller.signal,
+        );
         setTask(response.data);
         setStatus('success');
       } catch (error) {
@@ -61,10 +69,10 @@ export function TaskDetailPage() {
     void loadTask();
 
     return () => controller.abort();
-  }, [taskId, reloadKey]);
+  }, [taskId, accessToken, reloadKey]);
 
   async function handleDelete(): Promise<void> {
-    if (!task) {
+    if (!task || !accessToken) {
       return;
     }
 
@@ -79,7 +87,7 @@ export function TaskDetailPage() {
     setIsDeleting(true);
 
     try {
-      await deleteTask(task.id);
+      await deleteTask(task.id, accessToken);
       // replace evita volver con Atrás al detalle de una tarea eliminada
       navigate('/tasks', { replace: true });
     } catch (error) {

@@ -24,7 +24,10 @@ const EMPTY_META: PageMeta = {
   hasPreviousPage: false,
 };
 
-export function useTaskList(query: TaskListQuery) {
+export function useTaskList(
+  query: TaskListQuery,
+  accessToken: string | null,
+) {
   const {
     page,
     limit,
@@ -48,6 +51,12 @@ export function useTaskList(query: TaskListQuery) {
   }, []);
 
   useEffect(() => {
+    // Sin sesión no se consulta; ProtectedRoute redirige a /login.
+    if (!accessToken) {
+      return;
+    }
+
+    const token = accessToken;
     const controller = new AbortController();
 
     async function load(): Promise<void> {
@@ -60,6 +69,7 @@ export function useTaskList(query: TaskListQuery) {
       try {
         const response = await listTasks(
           { page, limit, search, status: statusFilter, sortBy, order },
+          token,
           controller.signal,
         );
 
@@ -89,7 +99,16 @@ export function useTaskList(query: TaskListQuery) {
     return () => {
       controller.abort();
     };
-  }, [page, limit, search, statusFilter, sortBy, order, reloadKey]);
+  }, [
+    accessToken,
+    page,
+    limit,
+    search,
+    statusFilter,
+    sortBy,
+    order,
+    reloadKey,
+  ]);
 
   return { ...state, reload };
 }
