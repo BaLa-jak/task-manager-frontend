@@ -11,6 +11,7 @@ import { TaskStatusBadge } from './TaskStatusBadge';
 
 interface TaskItemProps {
   task: Task;
+  canDelete: boolean;
   onToggleStatus: (task: Task) => Promise<boolean>;
   onEditTask: (task: Task, title: string) => Promise<boolean>;
   onDeleteTask: (task: Task) => Promise<boolean>;
@@ -18,6 +19,7 @@ interface TaskItemProps {
 
 export function TaskItem({
   task,
+  canDelete,
   onToggleStatus,
   onEditTask,
   onDeleteTask,
@@ -175,14 +177,17 @@ export function TaskItem({
         >
           Editar
         </button>
-        <button
-          type="button"
-          className="button-danger"
-          onClick={() => void runBusy(() => onDeleteTask(task))}
-          disabled={isBusy || isEditing}
-        >
-          Eliminar
-        </button>
+        {/* Solo ayuda visual: la API sigue respondiendo 403 a un user. */}
+        {canDelete && (
+          <button
+            type="button"
+            className="button-danger"
+            onClick={() => void runBusy(() => onDeleteTask(task))}
+            disabled={isBusy || isEditing}
+          >
+            Eliminar
+          </button>
+        )}
       </div>
     </article>
   );

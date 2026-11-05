@@ -17,7 +17,8 @@ type DetailStatus = 'loading' | 'success' | 'not-found' | 'error';
 export function TaskDetailPage() {
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
-  const { accessToken } = useAuth();
+  const { accessToken, user } = useAuth();
+  const canDelete = user?.role === 'admin';
   const [task, setTask] = useState<Task | null>(null);
   const [status, setStatus] = useState<DetailStatus>('loading');
   const [errorMessage, setErrorMessage] = useState('');
@@ -72,7 +73,7 @@ export function TaskDetailPage() {
   }, [taskId, accessToken, reloadKey]);
 
   async function handleDelete(): Promise<void> {
-    if (!task || !accessToken) {
+    if (!task || !accessToken || !canDelete) {
       return;
     }
 
@@ -131,7 +132,7 @@ export function TaskDetailPage() {
 
   return (
     <article className="panel task-detail" aria-labelledby="task-detail-title">
-      <p className="section-heading__eyebrow">Detalle remoto</p>
+      <p className="section-heading__eyebrow">Detalle protegido</p>
       <h2 id="task-detail-title">{task.title}</h2>
 
       <dl className="task-detail__grid">
@@ -163,18 +164,26 @@ export function TaskDetailPage() {
         </div>
       </dl>
 
+      {!canDelete && (
+        <p className="permission-note">
+          La eliminación requiere el rol admin.
+        </p>
+      )}
+
       <div className="task-detail__actions">
         <Link className="button-link button-link--secondary" to="/tasks">
           Volver a tareas
         </Link>
-        <button
-          type="button"
-          className="button-danger"
-          disabled={isDeleting}
-          onClick={() => void handleDelete()}
-        >
-          {isDeleting ? 'Eliminando...' : 'Eliminar tarea'}
-        </button>
+        {canDelete && (
+          <button
+            type="button"
+            className="button-danger"
+            disabled={isDeleting}
+            onClick={() => void handleDelete()}
+          >
+            {isDeleting ? 'Eliminando...' : 'Eliminar tarea'}
+          </button>
+        )}
       </div>
     </article>
   );

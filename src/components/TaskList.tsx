@@ -3,6 +3,7 @@ import { TaskItem } from './TaskItem';
 
 interface TaskListProps {
   tasks: Task[];
+  canDelete: boolean;
   onToggleStatus: (task: Task) => Promise<boolean>;
   onEditTask: (task: Task, title: string) => Promise<boolean>;
   onDeleteTask: (task: Task) => Promise<boolean>;
@@ -11,6 +12,7 @@ interface TaskListProps {
 // Los estados de carga, vacío y error los presenta AsyncStatus.
 export function TaskList({
   tasks,
+  canDelete,
   onToggleStatus,
   onEditTask,
   onDeleteTask,
@@ -38,6 +40,7 @@ export function TaskList({
           <TaskItem
             key={task.id}
             task={task}
+            canDelete={canDelete}
             onToggleStatus={onToggleStatus}
             onEditTask={onEditTask}
             onDeleteTask={onDeleteTask}

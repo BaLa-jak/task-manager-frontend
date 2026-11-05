@@ -41,7 +41,8 @@ function mapSort(sort: TaskSort): {
 }
 
 export function TasksPage() {
-  const { accessToken } = useAuth();
+  const { accessToken, user } = useAuth();
+  const canDelete = user?.role === 'admin';
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get('q') ?? '';
   const [filter, setFilter] = useState<TaskFilter>('all');
@@ -175,6 +176,12 @@ export function TasksPage() {
       return false;
     }
 
+    if (!canDelete) {
+      setOperationFailed(true);
+      setOperationMessage('Solo el rol admin puede eliminar tareas.');
+      return false;
+    }
+
     const shouldDelete = window.confirm(
       `¿Eliminar la tarea "${task.title}"?`,
     );
@@ -244,9 +251,18 @@ export function TasksPage() {
         className="page-introduction"
         aria-labelledby="tasks-page-title"
       >
-        <p className="section-heading__eyebrow">Gestión remota</p>
-        <h2 id="tasks-page-title">Mis tareas</h2>
-        <p>Los cambios se guardan mediante la API REST.</p>
+        <p className="section-heading__eyebrow">Gestión autenticada</p>
+        <h2 id="tasks-page-title">Tareas</h2>
+        <p>
+          Sesión de {user?.name}. Los cambios se guardan mediante la API
+          REST.
+        </p>
+        {!canDelete && (
+          <p className="permission-note">
+            Tu rol puede consultar, crear y actualizar. La eliminación
+            requiere admin.
+          </p>
+        )}
       </section>
 
       <TaskForm isSubmitting={isMutating} onAddTask={handleAddTask} />
@@ -288,6 +304,7 @@ export function TasksPage() {
 
           <TaskList
             tasks={tasks}
+            canDelete={canDelete}
             onToggleStatus={handleToggleStatus}
             onEditTask={handleEditTask}
             onDeleteTask={handleDeleteTask}

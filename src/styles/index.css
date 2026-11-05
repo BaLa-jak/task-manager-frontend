@@ -557,3 +557,80 @@ input[aria-invalid='true'] {
   .task-detail__actions .button-link,
   .task-detail__actions button { width: 100%; }
 }
+
+/* Autenticación y sesión (A11) */
+.app-navigation-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.session-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.session-summary span {
+  color: #455568;
+  font-size: 0.9rem;
+}
+
+.auth-panel {
+  width: min(100%, 560px);
+  margin-inline: auto;
+}
+
+.auth-form {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.form-field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.form-field label {
+  font-weight: 700;
+}
+
+.form-field input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #aebccb;
+  border-radius: 0.5rem;
+}
+
+.form-field input:focus {
+  border-color: #1f4f7a;
+  outline: 3px solid #c5def2;
+}
+
+.form-field small,
+.auth-alternative,
+.permission-note {
+  color: #526173;
+}
+
+.auth-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.permission-note {
+  padding: 0.75rem 1rem;
+  border-left: 4px solid #1f4f7a;
+  background: #eef5fb;
+}
+
+@media (max-width: 720px) {
+  .app-navigation-bar,
+  .session-summary {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
