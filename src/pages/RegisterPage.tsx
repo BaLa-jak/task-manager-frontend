@@ -59,6 +59,7 @@ export function RegisterPage() {
         name: normalizedName,
         email: email.trim(),
         password,
+        confirmPassword: confirmation,
       });
 
       // El registro no devuelve token: se continúa en login.
