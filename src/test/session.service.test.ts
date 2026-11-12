@@ -14,7 +14,7 @@ describe('session.service', () => {
     expect(readAccessToken()).toBeNull();
   });
 
-  it('guarda, lee y elimina el token', () => {
+  it('guarda, lee y elimina el token', () => {    
     storeAccessToken('token-de-prueba');
 
     expect(readAccessToken()).toBe('token-de-prueba');
